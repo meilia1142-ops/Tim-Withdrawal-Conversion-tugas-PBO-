@@ -1,0 +1,43 @@
+package dao;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import model.Nasabah;
+import util.HttpClientHelper;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
+public class NasabahDAO {
+
+    private final Gson gson = new Gson();
+
+    public Nasabah findById(int id) {
+        try {
+            String response = HttpClientHelper.get("/rest/v1/tb_nasabah?id_nasabah=eq." + id + "&select=*");
+            Type listType = new TypeToken<List<Nasabah>>() {}.getType();
+            List<Nasabah> list = gson.fromJson(response, listType);
+            if (list != null && !list.isEmpty()) {
+                return list.get(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Nasabah> findAll() {
+        try {
+            String response = HttpClientHelper.get("/rest/v1/tb_nasabah?select=*");
+            Type listType = new TypeToken<List<Nasabah>>() {}.getType();
+            List<Nasabah> list = gson.fromJson(response, listType);
+            if (list != null) {
+                return list;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+}
