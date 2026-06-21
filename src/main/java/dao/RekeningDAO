@@ -1,0 +1,110 @@
+package dao;
+
+import com.google.gson.Gson;
+import model.Rekening;
+import util.HttpClientHelper;
+
+import java.math.BigDecimal;
+
+public class RekeningDAO {
+
+    private final Gson gson = new Gson();
+
+    public Rekening findByNasabahId(
+            int idNasabah
+    ) {
+
+        try {
+
+            String endpoint =
+                    "/rest/v1/tb_rekening"
+                            + "?id_nasabah=eq."
+                            + idNasabah
+                            + "&select=*";
+
+            System.out.println("=================================");
+            System.out.println("REQUEST REKENING:");
+            System.out.println(endpoint);
+            System.out.println("=================================");
+
+            String json =
+                    HttpClientHelper.get(endpoint);
+
+            System.out.println("JSON REKENING:");
+            System.out.println(json);
+            System.out.println("=================================");
+
+            Rekening[] result =
+                    gson.fromJson(
+                            json,
+                            Rekening[].class
+                    );
+
+            if (result != null && result.length > 0) {
+
+                System.out.println(
+                        "Rekening ditemukan"
+                );
+
+                return result[0];
+            }
+
+            System.out.println(
+                    "Rekening tidak ditemukan"
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return null;
+    }
+
+    public boolean updateSaldo(
+            int idNasabah,
+            BigDecimal saldoBaru
+    ) {
+
+        try {
+
+            String body =
+                    """
+                    {
+                        "saldo": %s
+                    }
+                    """.formatted(
+                            saldoBaru
+                    );
+
+            String endpoint =
+                    "/rest/v1/tb_rekening"
+                            + "?id_nasabah=eq."
+                            + idNasabah;
+
+            System.out.println("PATCH ENDPOINT:");
+            System.out.println(endpoint);
+
+            System.out.println("PATCH BODY:");
+            System.out.println(body);
+
+            String response =
+                    HttpClientHelper.patch(
+                            endpoint,
+                            body
+                    );
+
+            System.out.println("PATCH RESPONSE:");
+            System.out.println(response);
+
+            return true;
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+}
