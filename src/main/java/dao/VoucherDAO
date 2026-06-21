@@ -1,0 +1,175 @@
+package dao;
+
+import com.google.gson.Gson;
+import model.VoucherDigital;
+import util.HttpClientHelper;
+
+public class VoucherDAO {
+
+    private final Gson gson =
+            new Gson();
+
+    public VoucherDigital save(
+            VoucherDigital voucher
+    ) {
+
+        try {
+
+            String body =
+                    """
+                    {
+                      "kode_voucher":"%s",
+                      "jenis_voucher":"%s",
+                      "nominal":%s,
+                      "status":"%s"
+                    }
+                    """.formatted(
+                            voucher.getKodeVoucher(),
+                            voucher.getJenisVoucher(),
+                            voucher.getNominal(),
+                            voucher.getStatus()
+                    );
+
+            System.out.println(
+                    "================================="
+            );
+
+            System.out.println(
+                    "INSERT VOUCHER BODY:"
+            );
+
+            System.out.println(
+                    body
+            );
+
+            System.out.println(
+                    "================================="
+            );
+
+            String response =
+                    HttpClientHelper.post(
+                            "/rest/v1/tb_voucher_digital",
+                            body
+                    );
+
+            System.out.println(
+                    "VOUCHER RESPONSE:"
+            );
+
+            System.out.println(
+                    response
+            );
+
+            System.out.println(
+                    "================================="
+            );
+
+            VoucherDigital[] result =
+                    gson.fromJson(
+                            response,
+                            VoucherDigital[].class
+                    );
+
+            if (
+                    result != null
+                            &&
+                            result.length > 0
+            ) {
+
+                return result[0];
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return null;
+    }
+
+    public VoucherDigital findByKode(
+            String kodeVoucher
+    ) {
+
+        try {
+
+            String endpoint =
+                    "/rest/v1/tb_voucher_digital"
+                            + "?kode_voucher=eq."
+                            + kodeVoucher
+                            + "&select=*";
+
+            String json =
+                    HttpClientHelper.get(
+                            endpoint
+                    );
+
+            VoucherDigital[] result =
+                    gson.fromJson(
+                            json,
+                            VoucherDigital[].class
+                    );
+
+            if (
+                    result != null
+                            &&
+                            result.length > 0
+            ) {
+
+                return result[0];
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return null;
+    }
+
+    public VoucherDigital findById(
+            int idVoucher
+    ) {
+
+        try {
+
+            String endpoint =
+                    "/rest/v1/tb_voucher_digital"
+                            + "?id_voucher=eq."
+                            + idVoucher
+                            + "&select=*";
+
+            String json =
+                    HttpClientHelper.get(
+                            endpoint
+                    );
+
+            VoucherDigital[] result =
+                    gson.fromJson(
+                            json,
+                            VoucherDigital[].class
+                    );
+
+            if (
+                    result != null
+                            &&
+                            result.length > 0
+            ) {
+
+                return result[0];
+
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return null;
+    }
+}
