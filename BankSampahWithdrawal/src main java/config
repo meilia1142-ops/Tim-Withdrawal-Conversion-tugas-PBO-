@@ -1,0 +1,20 @@
+package config;
+
+import io.github.cdimascio.dotenv.Dotenv;
+
+public class SupabaseConfig {
+
+    private static final Dotenv dotenv =
+            Dotenv.configure()
+                    .filename(".env.local")
+                    .load();
+
+    public static final String SUPABASE_URL =
+            dotenv.get("SUPABASE_URL");
+
+    public static final String SUPABASE_API_KEY =
+            dotenv.get("SUPABASE_ANON_KEY");
+
+    private SupabaseConfig() {
+    }
+}
