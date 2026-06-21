@@ -1,0 +1,68 @@
+package dao;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import model.TransaksiPenarikan;
+import util.HttpClientHelper;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class PenarikanDAO {
+
+    private final Gson gson = new Gson();
+
+    public TransaksiPenarikan save(TransaksiPenarikan penarikan) {
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("id_nasabah", penarikan.getIdNasabah());
+            body.put("id_voucher", penarikan.getIdVoucher());
+            body.put("jenis_penarikan", penarikan.getJenisPenarikan());
+            body.put("nominal", penarikan.getNominal());
+            body.put("status", penarikan.getStatus());
+
+            String jsonBody = gson.toJson(body);
+            String response = HttpClientHelper.post("/rest/v1/tb_penarikan?select=*", jsonBody);
+
+            Type listType = new TypeToken<List<TransaksiPenarikan>>() {}.getType();
+            List<TransaksiPenarikan> list = gson.fromJson(response, listType);
+            if (list != null && !list.isEmpty()) {
+                return list.get(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<TransaksiPenarikan> findAll() {
+        try {
+            String response = HttpClientHelper.get("/rest/v1/tb_penarikan?select=*");
+            Type listType = new TypeToken<List<TransaksiPenarikan>>() {}.getType();
+            List<TransaksiPenarikan> list = gson.fromJson(response, listType);
+            if (list != null) {
+                return list;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    public List<TransaksiPenarikan> findByNasabahId(int idNasabah) {
+        try {
+            String response = HttpClientHelper.get("/rest/v1/tb_penarikan?id_nasabah=eq." + idNasabah + "&select=*");
+            Type listType = new TypeToken<List<TransaksiPenarikan>>() {}.getType();
+            List<TransaksiPenarikan> list = gson.fromJson(response, listType);
+            if (list != null) {
+                return list;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+}
