@@ -1,0 +1,5 @@
+INSERT INTO tb_nasabah (id_nasabah, nama, no_hp, pin_hash, status)
+VALUES (999, 'Testing Account WD Team', '081234567890', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'AKTIF');
+
+INSERT INTO tb_rekening (id_rekening, id_nasabah, saldo)
+VALUES (999, 999, 5000000.00);
