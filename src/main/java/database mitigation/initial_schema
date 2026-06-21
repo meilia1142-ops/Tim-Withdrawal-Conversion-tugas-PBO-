@@ -1,0 +1,78 @@
+CREATE TABLE tb_nasabah (
+                            id_nasabah SERIAL PRIMARY KEY,
+                            nama VARCHAR(100) NOT NULL,
+                            no_hp VARCHAR(20),
+                            pin_hash VARCHAR(255) NOT NULL,
+                            status VARCHAR(20),
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tb_rekening (
+                             id_rekening SERIAL PRIMARY KEY,
+                             id_nasabah INT UNIQUE NOT NULL,
+                             saldo NUMERIC(15,2) DEFAULT 0,
+
+                             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                             CONSTRAINT fk_rekening_nasabah
+                                 FOREIGN KEY(id_nasabah)
+                                     REFERENCES tb_nasabah(id_nasabah)
+);
+
+CREATE TABLE tb_voucher_digital (
+                                    id_voucher SERIAL PRIMARY KEY,
+
+                                    kode_voucher VARCHAR(100) UNIQUE,
+
+                                    jenis_voucher VARCHAR(20),
+
+                                    nominal NUMERIC(15,2),
+
+                                    status VARCHAR(20),
+
+                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tb_penarikan (
+                              id_penarikan SERIAL PRIMARY KEY,
+
+                              id_nasabah INT NOT NULL,
+
+                              id_voucher INT,
+
+                              jenis_penarikan VARCHAR(20),
+
+                              nominal NUMERIC(15,2),
+
+                              status VARCHAR(20),
+
+                              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                              CONSTRAINT fk_penarikan_nasabah
+                                  FOREIGN KEY(id_nasabah)
+                                      REFERENCES tb_nasabah(id_nasabah),
+
+                              CONSTRAINT fk_penarikan_voucher
+                                  FOREIGN KEY(id_voucher)
+                                      REFERENCES tb_voucher_digital(id_voucher)
+);
+
+CREATE TABLE tb_log_vendor (
+                               id_log SERIAL PRIMARY KEY,
+
+                               id_penarikan INT NOT NULL,
+
+                               vendor VARCHAR(100),
+
+                               request_data TEXT,
+
+                               response_data TEXT,
+
+                               status VARCHAR(20),
+
+                               created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                               CONSTRAINT fk_log_vendor
+                                   FOREIGN KEY(id_penarikan)
+                                       REFERENCES tb_penarikan(id_penarikan)
+);
