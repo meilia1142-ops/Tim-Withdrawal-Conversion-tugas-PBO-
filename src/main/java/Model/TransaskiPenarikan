@@ -1,0 +1,86 @@
+package model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.math.BigDecimal;
+
+public class TransaksiPenarikan {
+
+    @SerializedName("id_penarikan")
+    private int idPenarikan;
+
+    @SerializedName("id_nasabah")
+    private int idNasabah;
+
+    @SerializedName("id_voucher")
+    private Integer idVoucher;
+
+    @SerializedName("jenis_penarikan")
+    private String jenisPenarikan;
+
+    private BigDecimal nominal;
+
+    private String status;
+
+    @SerializedName("created_at")
+    private String createdAt;
+
+    public TransaksiPenarikan() {
+    }
+
+    public int getIdPenarikan() {
+        return idPenarikan;
+    }
+
+    public void setIdPenarikan(int idPenarikan) {
+        this.idPenarikan = idPenarikan;
+    }
+
+    public int getIdNasabah() {
+        return idNasabah;
+    }
+
+    public void setIdNasabah(int idNasabah) {
+        this.idNasabah = idNasabah;
+    }
+
+    public Integer getIdVoucher() {
+        return idVoucher;
+    }
+
+    public void setIdVoucher(Integer idVoucher) {
+        this.idVoucher = idVoucher;
+    }
+
+    public String getJenisPenarikan() {
+        return jenisPenarikan;
+    }
+
+    public void setJenisPenarikan(String jenisPenarikan) {
+        this.jenisPenarikan = jenisPenarikan;
+    }
+
+    public BigDecimal getNominal() {
+        return nominal;
+    }
+
+    public void setNominal(BigDecimal nominal) {
+        this.nominal = nominal;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+}
