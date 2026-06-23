@@ -1,0 +1,25 @@
+package model;
+
+import java.math.BigDecimal;
+
+public class PenarikanTunai extends Penarikan {
+
+    public PenarikanTunai(
+            int idNasabah,
+            BigDecimal nominal) {
+
+        super(idNasabah, nominal);
+    }
+
+    public PenarikanTunai() {
+        super();
+    }
+
+    @Override
+    public void eksekusiPenarikan() {
+
+        System.out.println(
+                "Penarikan Tunai: " + nominal
+        );
+    }
+}
