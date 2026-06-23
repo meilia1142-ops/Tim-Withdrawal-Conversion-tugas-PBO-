@@ -1,0 +1,75 @@
+package model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.math.BigDecimal;
+
+public class VoucherDigital {
+
+    @SerializedName("id_voucher")
+    private int idVoucher;
+
+    @SerializedName("kode_voucher")
+    private String kodeVoucher;
+
+    @SerializedName("jenis_voucher")
+    private String jenisVoucher;
+
+    private BigDecimal nominal;
+
+    private String status;
+
+    @SerializedName("created_at")
+    private String createdAt;
+
+    public VoucherDigital() {
+    }
+
+    public int getIdVoucher() {
+        return idVoucher;
+    }
+
+    public void setIdVoucher(int idVoucher) {
+        this.idVoucher = idVoucher;
+    }
+
+    public String getKodeVoucher() {
+        return kodeVoucher;
+    }
+
+    public void setKodeVoucher(String kodeVoucher) {
+        this.kodeVoucher = kodeVoucher;
+    }
+
+    public String getJenisVoucher() {
+        return jenisVoucher;
+    }
+
+    public void setJenisVoucher(String jenisVoucher) {
+        this.jenisVoucher = jenisVoucher;
+    }
+
+    public BigDecimal getNominal() {
+        return nominal;
+    }
+
+    public void setNominal(BigDecimal nominal) {
+        this.nominal = nominal;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+}
