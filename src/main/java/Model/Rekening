@@ -1,0 +1,54 @@
+package model;
+
+import com.google.gson.annotations.SerializedName;
+
+import java.math.BigDecimal;
+
+public class Rekening {
+
+    @SerializedName("id_rekening")
+    private int idRekening;
+
+    @SerializedName("id_nasabah")
+    private int idNasabah;
+
+    private BigDecimal saldo;
+
+    @SerializedName("updated_at")
+    private String updatedAt;
+
+    public Rekening() {
+    }
+
+    public int getIdRekening() {
+        return idRekening;
+    }
+
+    public void setIdRekening(int idRekening) {
+        this.idRekening = idRekening;
+    }
+
+    public int getIdNasabah() {
+        return idNasabah;
+    }
+
+    public void setIdNasabah(int idNasabah) {
+        this.idNasabah = idNasabah;
+    }
+
+    public BigDecimal getSaldo() {
+        return saldo;
+    }
+
+    public void setSaldo(BigDecimal saldo) {
+        this.saldo = saldo;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+}
