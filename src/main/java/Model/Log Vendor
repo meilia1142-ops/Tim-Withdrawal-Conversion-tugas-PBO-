@@ -1,0 +1,84 @@
+package model;
+
+import com.google.gson.annotations.SerializedName;
+
+public class LogVendor {
+
+    @SerializedName("id_log")
+    private int idLog;
+
+    @SerializedName("id_penarikan")
+    private int idPenarikan;
+
+    private String vendor;
+
+    @SerializedName("request_data")
+    private String requestData;
+
+    @SerializedName("response_data")
+    private String responseData;
+
+    private String status;
+
+    @SerializedName("created_at")
+    private String createdAt;
+
+    public LogVendor() {
+    }
+
+    public int getIdLog() {
+        return idLog;
+    }
+
+    public void setIdLog(int idLog) {
+        this.idLog = idLog;
+    }
+
+    public int getIdPenarikan() {
+        return idPenarikan;
+    }
+
+    public void setIdPenarikan(int idPenarikan) {
+        this.idPenarikan = idPenarikan;
+    }
+
+    public String getVendor() {
+        return vendor;
+    }
+
+    public void setVendor(String vendor) {
+        this.vendor = vendor;
+    }
+
+    public String getRequestData() {
+        return requestData;
+    }
+
+    public void setRequestData(String requestData) {
+        this.requestData = requestData;
+    }
+
+    public String getResponseData() {
+        return responseData;
+    }
+
+    public void setResponseData(String responseData) {
+        this.responseData = responseData;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+}
