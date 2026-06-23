@@ -1,0 +1,21 @@
+package model;
+
+import java.math.BigDecimal;
+
+public class PenarikanToken extends Penarikan {
+
+    public PenarikanToken(
+            int idNasabah,
+            BigDecimal nominal) {
+
+        super(idNasabah, nominal);
+    }
+
+    @Override
+    public void eksekusiPenarikan() {
+
+        System.out.println(
+                "Konversi Token: " + nominal
+        );
+    }
+}
