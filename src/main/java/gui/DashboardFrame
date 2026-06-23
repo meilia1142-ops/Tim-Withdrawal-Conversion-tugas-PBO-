@@ -1,0 +1,341 @@
+package gui;
+
+import service.WithdrawalService;
+import dao.PenarikanDAO;
+import model.TransaksiPenarikan;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.math.BigDecimal;
+import java.util.List;
+
+public class DashboardFrame extends JFrame {
+
+    private JPanel sidebarPanel;
+    private JPanel contentPanel;
+    private CardLayout cardLayout;
+
+    private JTextField txtNominal;
+    private JPasswordField txtPin;
+    private JLabel lblFormTitle;
+    private JTable tblHistory;
+    private DefaultTableModel tableModel;
+    private String jenisTransaksiAktif = "TUNAI";
+
+    private final WithdrawalService service = new WithdrawalService();
+    private final PenarikanDAO penarikanDAO = new PenarikanDAO();
+
+    private final Color COLOR_BG = new Color(245, 247, 250);
+    private final Color COLOR_SIDEBAR = new Color(33, 43, 54);
+    private final Color COLOR_PRIMARY = new Color(28, 115, 232);
+    private final Color COLOR_TEXT_LIGHT = new Color(255, 255, 255);
+    private final Color COLOR_TEXT_DARK = new Color(43, 43, 43);
+
+    public DashboardFrame() {
+        setTitle("Bank Sampah - Digital Withdrawal System");
+        setSize(950, 650);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        initComponents();
+    }
+
+    private void initComponents() {
+        setLayout(new BorderLayout());
+
+        sidebarPanel = new JPanel();
+        sidebarPanel.setBackground(COLOR_SIDEBAR);
+        sidebarPanel.setPreferredSize(new Dimension(250, 650));
+        sidebarPanel.setLayout(new BoxLayout(sidebarPanel, BoxLayout.Y_AXIS));
+
+        JLabel lblLogo = new JLabel("BANK SAMPAH");
+        lblLogo.setForeground(COLOR_TEXT_LIGHT);
+        lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblLogo.setBorder(BorderFactory.createEmptyBorder(30, 25, 10, 25));
+        lblLogo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebarPanel.add(lblLogo);
+
+        JLabel lblSubLogo = new JLabel("Withdrawal & Convert");
+        lblSubLogo.setForeground(new Color(145, 158, 171));
+        lblSubLogo.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblSubLogo.setBorder(BorderFactory.createEmptyBorder(0, 25, 30, 25));
+        lblSubLogo.setAlignmentX(Component.LEFT_ALIGNMENT);
+        sidebarPanel.add(lblSubLogo);
+
+        addSidebarNavButton("Penarikan Tunai", "TUNAI", true);
+        addSidebarNavButton("Konversi Pulsa", "PULSA", true);
+        addSidebarNavButton("Token Listrik", "TOKEN", true);
+        addSidebarNavButton("Paket Sembako", "SEMBAKO", true);
+        addSidebarNavButton("Transfer Bank", "BANK", true);
+        addSidebarNavButton("Top-Up E-Wallet", "E_WALLET", true);
+
+        sidebarPanel.add(Box.createVerticalStrut(15));
+        JSeparator separator = new JSeparator();
+        separator.setMaximumSize(new Dimension(210, 1));
+        separator.setBackground(new Color(46, 58, 71));
+        sidebarPanel.add(separator);
+        sidebarPanel.add(Box.createVerticalStrut(15));
+
+        addSidebarNavButton("Riwayat Transaksi", "HISTORY", false);
+
+        sidebarPanel.add(Box.createVerticalGlue());
+
+        JButton btnKeluar = new JButton("Keluar Aplikasi");
+        btnKeluar.setMaximumSize(new Dimension(210, 40));
+        btnKeluar.setBackground(new Color(235, 64, 52));
+        btnKeluar.setForeground(COLOR_TEXT_LIGHT);
+        btnKeluar.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnKeluar.setFocusPainted(false);
+        btnKeluar.setBorderPainted(false);
+        btnKeluar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnKeluar.addActionListener(e -> {
+            int pilihan = JOptionPane.showConfirmDialog(this, "Yakin ingin keluar?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+            if (pilihan == JOptionPane.YES_OPTION) System.exit(0);
+        });
+        sidebarPanel.add(btnKeluar);
+        sidebarPanel.add(Box.createVerticalStrut(30));
+
+        cardLayout = new CardLayout();
+        contentPanel = new JPanel(cardLayout);
+        contentPanel.setBackground(COLOR_BG);
+
+        JPanel formPanel = buatPanelFormDinamis();
+        JPanel historyPanel = buatPanelHistoryDinamis();
+
+        contentPanel.add(formPanel, "PANEL_FORM");
+        contentPanel.add(historyPanel, "PANEL_HISTORY");
+
+        add(sidebarPanel, BorderLayout.WEST);
+        add(contentPanel, BorderLayout.CENTER);
+
+        cardLayout.show(contentPanel, "PANEL_FORM");
+    }
+
+    private void addSidebarNavButton(String text, String targetCard, boolean isForm) {
+        JButton btn = new JButton(text);
+        btn.setMaximumSize(new Dimension(230, 45));
+        btn.setBackground(COLOR_SIDEBAR);
+        btn.setForeground(new Color(200, 200, 200));
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setBorder(BorderFactory.createEmptyBorder(0, 25, 0, 0));
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(new Color(46, 58, 71));
+                btn.setForeground(COLOR_TEXT_LIGHT);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(COLOR_SIDEBAR);
+                btn.setForeground(new Color(200, 200, 200));
+            }
+        });
+
+        btn.addActionListener(e -> {
+            if (isForm) {
+                jenisTransaksiAktif = targetCard;
+                lblFormTitle.setText("FORM " + text.toUpperCase());
+                txtNominal.setText("");
+                txtPin.setText("");
+                cardLayout.show(contentPanel, "PANEL_FORM");
+            } else {
+                muatDataRiwayatKeTabel();
+                cardLayout.show(contentPanel, "PANEL_HISTORY");
+            }
+        });
+
+        sidebarPanel.add(btn);
+        sidebarPanel.add(Box.createVerticalStrut(5));
+    }
+
+    private JPanel buatPanelFormDinamis() {
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(COLOR_BG);
+
+        JPanel card = new JPanel();
+        card.setBackground(Color.WHITE);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(230, 235, 242), 1),
+                BorderFactory.createEmptyBorder(40, 40, 40, 40)
+        ));
+        card.setPreferredSize(new Dimension(450, 420));
+
+        lblFormTitle = new JLabel("FORM PENARIKAN TUNAI");
+        lblFormTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblFormTitle.setForeground(COLOR_TEXT_DARK);
+        lblFormTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(lblFormTitle);
+        card.add(Box.createVerticalStrut(30));
+
+        JLabel lblNominal = new JLabel("Nominal Transaksi (Rp)");
+        lblNominal.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblNominal.setForeground(new Color(99, 115, 129));
+        lblNominal.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(lblNominal);
+        card.add(Box.createVerticalStrut(8));
+
+        txtNominal = new JTextField();
+        txtNominal.setMaximumSize(new Dimension(370, 40));
+        txtNominal.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        txtNominal.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        txtNominal.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(txtNominal);
+        card.add(Box.createVerticalStrut(20));
+
+        JLabel lblPin = new JLabel("PIN Keamanan");
+        lblPin.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblPin.setForeground(new Color(99, 115, 129));
+        lblPin.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(lblPin);
+        card.add(Box.createVerticalStrut(8));
+
+        txtPin = new JPasswordField();
+        txtPin.setMaximumSize(new Dimension(370, 40));
+        txtPin.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        txtPin.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+        ));
+        txtPin.setAlignmentX(Component.LEFT_ALIGNMENT);
+        card.add(txtPin);
+        card.add(Box.createVerticalStrut(35));
+
+        JButton btnProses = new JButton("PROSES TRANSAKSI");
+        btnProses.setMaximumSize(new Dimension(370, 45));
+        btnProses.setBackground(COLOR_PRIMARY);
+        btnProses.setForeground(COLOR_TEXT_LIGHT);
+        btnProses.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnProses.setFocusPainted(false);
+        btnProses.setBorderPainted(false);
+        btnProses.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        btnProses.addActionListener(e -> eksekusiTransaksiDinamis());
+
+        card.add(btnProses);
+
+        wrapper.add(card);
+        return wrapper;
+    }
+
+    private JPanel buatPanelHistoryDinamis() {
+        JPanel wrapper = new JPanel(new BorderLayout(20, 20));
+        wrapper.setBackground(COLOR_BG);
+        wrapper.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+
+        JLabel lblTitle = new JLabel("RIWAYAT TRANSAKSI NASABAH");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblTitle.setForeground(COLOR_TEXT_DARK);
+        wrapper.add(lblTitle, BorderLayout.NORTH);
+
+        String[] columns = {"ID Trx", "ID Nasabah", "Jenis Penarikan", "Nominal", "Status"};
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        tblHistory = new JTable(tableModel);
+        tblHistory.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblHistory.setRowHeight(30);
+        tblHistory.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tblHistory.getTableHeader().setBackground(new Color(230, 235, 242));
+        tblHistory.setGridColor(new Color(240, 240, 240));
+
+        JScrollPane scrollPane = new JScrollPane(tblHistory);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 225, 230)));
+        wrapper.add(scrollPane, BorderLayout.CENTER);
+
+        return wrapper;
+    }
+
+    private void muatDataRiwayatKeTabel() {
+        try {
+            tableModel.setRowCount(0);
+            List<TransaksiPenarikan> list = penarikanDAO.findAll();
+            if (list != null) {
+                for (TransaksiPenarikan trx : list) {
+                    tableModel.addRow(new Object[]{
+                            trx.getIdPenarikan(),
+                            trx.getIdNasabah(),
+                            trx.getJenisPenarikan(),
+                            "Rp " + trx.getNominal(),
+                            trx.getStatus()
+                    });
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void eksekusiTransaksiDinamis() {
+        try {
+            if (txtNominal.getText().trim().isEmpty() || txtPin.getPassword().length == 0) {
+                JOptionPane.showMessageDialog(this, "Semua kolom input wajib diisi!");
+                return;
+            }
+
+            BigDecimal nominal = new BigDecimal(txtNominal.getText());
+            String pin = new String(txtPin.getPassword());
+
+            switch (jenisTransaksiAktif) {
+                case "TUNAI" -> {
+                    boolean result = service.tarikTunai(nominal, pin);
+                    JOptionPane.showMessageDialog(this, result ? "Penarikan Tunai Berhasil!" : "Penarikan Tunai Gagal");
+                }
+                case "PULSA" -> {
+                    boolean result = service.konversiPulsa(nominal, pin);
+                    JOptionPane.showMessageDialog(this, result ? "Konversi Pulsa Sukses!" : "Konversi Pulsa Gagal");
+                }
+                case "TOKEN" -> {
+                    String kode = service.konversiToken(nominal, pin);
+                    if (kode != null) {
+                        JOptionPane.showMessageDialog(this, "Konversi Token Berhasil!\nKode Token Anda: " + kode);
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Konversi Token Gagal");
+                    }
+                }
+                case "SEMBAKO" -> {
+                    boolean result = service.konversiSembako(nominal, pin);
+                    JOptionPane.showMessageDialog(this, result ? "Konversi Sembako Berhasil!" : "Konversi Sembako Gagal");
+                }
+                case "BANK" -> {
+                    String namaBank = JOptionPane.showInputDialog(this, "Masukkan Nama Bank (e.g., BCA, BNI, BRI):");
+                    String noRek = JOptionPane.showInputDialog(this, "Masukkan Nomor Rekening Tujuan:");
+                    if (namaBank == null || noRek == null || namaBank.trim().isEmpty() || noRek.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Transaksi Dibatalkan. Data Bank tidak lengkap.");
+                        return;
+                    }
+                    boolean result = service.tarikViaBank(nominal, pin, namaBank, noRek);
+                    JOptionPane.showMessageDialog(this, result ? "Transfer ke Bank " + namaBank + " Berhasil!" : "Transfer Bank Gagal");
+                }
+                case "E_WALLET" -> {
+                    String namaWallet = JOptionPane.showInputDialog(this, "Masukkan Jenis E-Wallet (e.g., DANA, OVO, GOPAY):");
+                    String noHp = JOptionPane.showInputDialog(this, "Masukkan Nomor Handphone:");
+                    if (namaWallet == null || noHp == null || namaWallet.trim().isEmpty() || noHp.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "Transaksi Dibatalkan. Data E-Wallet tidak lengkap.");
+                        return;
+                    }
+                    boolean result = service.tarikViaEWallet(nominal, pin, namaWallet, noHp);
+                    JOptionPane.showMessageDialog(this, result ? "Top-Up " + namaWallet + " Berhasil!" : "Top-Up E-Wallet Gagal");
+                }
+            }
+
+            txtNominal.setText("");
+            txtPin.setText("");
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Input nominal harus berupa angka data numerik valid!");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
+}
